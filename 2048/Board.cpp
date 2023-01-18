@@ -66,7 +66,7 @@ void Board::drawUI() {
 
     sf::Font font;
     if (!font.loadFromFile("digital-7.ttf")) {
-        cout << "nie uda�o si� za�adowa� czcionki";
+        cout << "nie uda�o si� za�adowa� czcionki";
     }
 
     sf::Text scoreText;
@@ -84,7 +84,7 @@ void Board::drawUI() {
     window.draw(score);
 
     sf::Text instruction;
-    instruction.setString("Stworz plytke o wartosci 2048, aby wygrac. \nPoruszaj plytkami przy pomocy WSAD lub strzalek. \nZ kazdym ruchem pojawia sie nowa plytka (2 lub 4). \nKazda nowa plytka ma zolta obwodke.");
+    instruction.setString("Stworz plytke o wartosci 2048, aby wygrac. \n\nPoruszaj plytkami przy pomocy WSAD lub strzalek. \n\nZ kazdym ruchem pojawia sie nowa plytka (2 lub 4). \n\nKazda nowa plytka ma zolta obwodke.");
     instruction.setCharacterSize(20);
     instruction.setPosition(175, 10);
     instruction.setFont(font);
@@ -100,7 +100,7 @@ void Board::drawWinScreen() {
 
     sf::Font font;
     if (!font.loadFromFile("digital-7.ttf")) {
-        cout << "nie uda�o si� za�adowa� czcionki";
+        cout << "nie uda�o si� za�adowa� czcionki";
     }
 
     sf::Text winText;
@@ -126,7 +126,7 @@ void Board::drawLooseScreen() {
 
     sf::Font font;
     if (!font.loadFromFile("digital-7.ttf")) {
-        cout << "nie uda�o si� za�adowa� czcionki";
+        cout << "nie uda�o si� za�adowa� czcionki";
     }
 
     sf::Text lText;
@@ -164,43 +164,39 @@ bool Board::hasWon() {
 }
 
 bool Board::isAbleToMove() {
-    for (int iteration = 0; iteration < 2; iteration++) {
-        for (int counter = 3; counter >= 0; counter--) {
-            std::vector<Node> currRow;
+    for (int iteration = 0; iteration < 2; iteration++) { // w pierwszej iteracji sprawdzamy czy można się ruszyć poziomo, w drugiej czy można pionowo
+        for (int counter = 3; counter >= 0; counter--) { // iteracja 4 razy, ponieważ plansza jest 4x4
+            std::vector<Node> currRow; // tworzymy vector, w którym będą wszystkie komórki danego rzędu/kolumny
             for (std::list<Node>::iterator it = this->grid.begin(); it != this->grid.end(); it++) {
                 if (iteration == 0) {
                     if (it->getY() == counter + 1) {
                         Node currNode(it->getX(), it->getY(), it->getState());
-                        currRow.push_back(currNode);
+                        currRow.push_back(currNode); // wpisujemy do vectora wszystkie komórki z danego rzędu
                     }
                 }
                 else if (iteration == 1) {
                     if (it->getX() == counter + 1) {
                         Node currNode(it->getX(), it->getY(), it->getState());
-                        currRow.push_back(currNode);
+                        currRow.push_back(currNode); // wpisujemy do vectora wszystkie komórki z danej kolumny
                     }
                 }
             }
-            for (int i = 2; i >= 0; i--) {
-                for (int j = i; j < 3; j++) {
-                    if (currRow[j].getState() != 0) {
-                        if (currRow[j].getState() == currRow[j + 1].getState()) {
-                            return true;
-                        }
-                        if (currRow[j + 1].getState() == 0 && currRow[j].getState() != 0) {
-                            return true;
+            for (int i = 2; i >= 0; i--) { // iteracja od 3. pola dla ruchu w prawo/dol
+                for (int j = i; j < 3; j++) { // iteracja od numeru aktualnego pola do pola numer 3
+                    if (currRow[j].getState() != 0) { // jesli komórka ma wartość
+                        if (currRow[j].getState() == currRow[j + 1].getState() || currRow[j + 1].getState() == 0) {
+                            // jeśli aktualna komórka ma wartość taką samą jak następna, lub następna komórka nie ma wartości (jest pusta)
+                            return true; // to można wykonać ruch
                         }
                     }
                 }
             }
-            for (int i = 1; i < 4; i++) {
-                for (int j = i; j > 0; j--) {
-                    if (currRow[j].getState() != 0) {
-                        if (currRow[j].getState() == currRow[j - 1].getState()) {
-                            return true;
-                        }
-                        if (currRow[j - 1].getState() == 0 && currRow[j].getState() != 0) {
-                            return true;
+            for (int i = 1; i < 4; i++) { // iteracja od 2. pola dla ruchu w lewo/gora
+                for (int j = i; j > 0; j--) { // iteracja od numeru aktualnego pola do pola numer 1
+                    if (currRow[j].getState() != 0) { // jesli komórka ma wartość
+                        if (currRow[j].getState() == currRow[j - 1].getState() || currRow[j - 1].getState() == 0) {
+                            // jeśli aktualna komórka ma wartość taką samą jak następna, lub następna komórka nie ma wartości (jest pusta)
+                            return true; // to można wykonać ruch
                         }
                     }
                 }
@@ -256,36 +252,39 @@ void Board::move(Direction dir) {
     this->canMove = false;
     bool wasMoveMade = false;
 
-    for (int counter = 3; counter >= 0; counter--) {
-        std::vector<Node> currRow;
-        for (std::list<Node>::iterator it = this->grid.begin(); it != this->grid.end(); it++) {
+    for (int counter = 3; counter >= 0; counter--) { // iteracja 4 razy, ponieważ plansza jest 4x4
+        std::vector<Node> currRow; // tworzymy vector, w którym będą wszystkie komórki danego rzędu/kolumny
+        for (std::list<Node>::iterator it = this->grid.begin(); it != this->grid.end(); it++) { 
             if (dir == RIGHT || dir == LEFT) {
                 if (it->getY() == counter + 1) {
                     Node currNode(it->getX(), it->getY(), it->getState());
-                    currRow.push_back(currNode);
+                    currRow.push_back(currNode); // wpisujemy do vectora wszystkie komórki z danego rzędu
                 }
             }
             else if (dir == UP || dir == DOWN) {
                 if (it->getX() == counter + 1) {
                     Node currNode(it->getX(), it->getY(), it->getState());
-                    currRow.push_back(currNode);
+                    currRow.push_back(currNode); // wpisujemy do vectora wszystkie komórki z danej kolumny
                 }
             }
         }
-        bool wasMerged = false;
+        bool wasMerged = false; // w jednym ruchu możemy połączyć dwie płytki ze sobą tylko raz, więc deklarujemy zmienną bool
         if (dir == RIGHT || dir == DOWN) {
-            for (int i = 2; i >= 0; i--) {
-                for (int j = i; j < 3; j++) {
-                    if (currRow[j].getState() != 0) {
+            for (int i = 2; i >= 0; i--) { // iteracja od 3. pola do 1. pola
+                for (int j = i; j < 3; j++) { // iteracja od numeru aktualnego pola do pola numer 3
+                    if (currRow[j].getState() != 0) { // jeśli aktualnie rozpatrywana komórka ma wartość
                         if (currRow[j].getState() == currRow[j + 1].getState() && !wasMerged) {
-                            currRow[j + 1].setState(currRow[j].getState() * 2);
-                            currRow[j].setState(0);
+                            // jeśli następna komórka ma wartość taką jak aktualna i żadne połączenie nie zostało jeszcze wykonane w tym rzędzie
+                            currRow[j + 1].setState(currRow[j].getState() * 2); // podwajamy wartość następnej komórki
+                            currRow[j].setState(0); // ustawiamy wartość aktualnej na 0
+                            // w ten sposób "łączymy płytki"
                             wasMerged = true;
                             wasMoveMade = true;
                         }
-                        if (currRow[j + 1].getState() == 0 && currRow[j].getState() != 0) {
-                            currRow[j + 1].setState(currRow[j].getState());
-                            currRow[j].setState(0);
+                        if (currRow[j + 1].getState() == 0) { // jeśli następna komórka nie ma wartości to
+                            currRow[j + 1].setState(currRow[j].getState()); // ustawiamy wartość następnej komórki na wartość aktualnej komórki
+                            currRow[j].setState(0); // ustawiamy wartość aktualnej komórki na 0
+                            // w ten sposób płytka się "przesuwa"
                             wasMoveMade = true;
                         }
                     }
@@ -293,16 +292,16 @@ void Board::move(Direction dir) {
             }
         }
         else if (dir == LEFT || dir == UP) {
-            for (int i = 1; i < 4; i++) {
-                for (int j = i; j > 0; j--) {
-                    if (currRow[j].getState() != 0) {
+            for (int i = 1; i < 4; i++) { // iteracja od 2. pola
+                for (int j = i; j > 0; j--) { // iteracja od numeru aktualnego pola do pola numer 1
+                    if (currRow[j].getState() != 0) { 
                         if (currRow[j].getState() == currRow[j - 1].getState() && !wasMerged) {
                             currRow[j - 1].setState(currRow[j].getState() * 2);
                             currRow[j].setState(0);
                             wasMerged = true;
                             wasMoveMade = true;
                         }
-                        if (currRow[j - 1].getState() == 0 && currRow[j].getState() != 0) {
+                        if (currRow[j - 1].getState() == 0) {
                             currRow[j - 1].setState(currRow[j].getState());
                             currRow[j].setState(0);
                             wasMoveMade = true;
@@ -312,7 +311,8 @@ void Board::move(Direction dir) {
             }
         }
         for (std::vector<Node>::iterator it = currRow.begin(); it != currRow.end(); it++) {
-            it->insert(this->grid, it->getX(), it->getY(), it->getState());
+            it->insert(this->grid, it->getX(), it->getY(), it->getState()); // komórki z wektora aktualnego rzędu/kolumny wpisujemy do listy grid
+            // "wrzucamy" je na plansze
         }
     }
 
@@ -321,14 +321,14 @@ void Board::move(Direction dir) {
         sf::Time elapsed = clock.getElapsedTime();
 
         if (elapsed.asMilliseconds() >= 200) {
-            this->canMove = true;
+            this->canMove = true; // cooldown przed następnym ruchem
         }
     }
 
     if (wasMoveMade && !this->hasWon() && !this->hasLost()) {
-        this->spawnTile();
+        this->spawnTile(); // jeśli udało nam się wykonać ruch to spawnujemy nową płytkę
     }
-    this->refresh();
+    this->refresh(); // update planszy
 }
 
 void Board::refresh() {
@@ -343,7 +343,7 @@ void Board::refresh() {
             tile.setTexture(tileTxt);
             tile.setPosition(it->getPosX(), it->getPosY());
 
-            // ��ta obw�dka na zespawnowanym kafelku
+            // zolta obwodka na zespawnowanym kafelku
             if (it->getSpawnedStatus() == true) {
                 it->setSpawnStatus(false);
                 sf::RectangleShape rect(sf::Vector2f(130, 130));
